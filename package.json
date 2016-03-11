@@ -1,0 +1,40 @@
+{
+  "name": "serene-express",
+  "version": "0.1.0",
+  "description": "Allows you to use Serene with Express",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4",
+    "serene": "^0.5.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "serene": "^0.5.0",
+    "supertest": "^1.2.0",
+    "supertest-as-promised": "^3.0.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stugotech/serene-express.git"
+  },
+  "keywords": [
+    "serene",
+    "rest",
+    "express",
+    "api",
+    "json"
+  ],
+  "author": "Stewart MacKenzie-Leigh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stugotech/serene-express/issues"
+  },
+  "homepage": "https://github.com/stugotech/serene-express#readme"
+}
