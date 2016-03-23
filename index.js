@@ -35,33 +35,32 @@ function sereneExpress(service) {
 
 function makeHandler(service, operation) {
   return function (request, response, next) {
-    var promise = service.dispatch(
+    service.dispatch(
         operation,
         request.params.resource,
         request.query,
         request.body,
         request.params.id
       )
-      .then(function (sereneResponse) {
-        if (sereneResponse.headers) {
-          for (var k in sereneResponse.headers) {
-            response.set(k, sereneResponse.headers[k]);
+      .then(
+        function (sereneResponse) {
+          if (sereneResponse.headers) {
+            for (var k in sereneResponse.headers) {
+              response.set(k, sereneResponse.headers[k]);
+            }
           }
-        }
 
-        if (sereneResponse.result) {
-          response
-            .status(sereneResponse.status || (operation === 'create' ? 201 : 200))
-            .json(sereneResponse.result);
-        } else {
-          response
-            .status(sereneResponse.status || 204)
-            .send();
-        }
-      });
-
-    if (promise && promise.then) {
-      promise.then(void 0, next);
-    }
+          if (sereneResponse.result) {
+            response
+              .status(sereneResponse.status || (operation === 'create' ? 201 : 200))
+              .json(sereneResponse.result);
+          } else {
+            response
+              .status(sereneResponse.status || 204)
+              .send();
+          }
+        },
+        next
+      );
   };
 }
