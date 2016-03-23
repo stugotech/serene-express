@@ -30,7 +30,7 @@ describe('serene-express', function () {
       service.use(function (request, response) {
         called = true;
         expect(request.operation).to.equal('list');
-        expect(request.resource).to.equal('widgets');
+        expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         response.result = {value: 'test'};
         return response;
@@ -54,7 +54,7 @@ describe('serene-express', function () {
       service.use(function (request, response) {
         called = true;
         expect(request.operation).to.equal('get');
-        expect(request.resource).to.equal('widgets');
+        expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.id).to.equal('5');
         response.result = {value: 'test'};
@@ -79,7 +79,7 @@ describe('serene-express', function () {
       service.use(function (request, response) {
         called = true;
         expect(request.operation).to.equal('create');
-        expect(request.resource).to.equal('widgets');
+        expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.body).to.eql({name: 'fred'});
         response.result = {value: 'test'};
@@ -112,7 +112,7 @@ describe('serene-express', function () {
       service.use(function (request, response) {
         called = true;
         expect(request.operation).to.equal('update');
-        expect(request.resource).to.equal('widgets');
+        expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.id).to.equal('5');
         expect(request.body).to.eql({name: 'fred'});
@@ -146,7 +146,7 @@ describe('serene-express', function () {
       service.use(function (request, response) {
         called = true;
         expect(request.operation).to.equal('replace');
-        expect(request.resource).to.equal('widgets');
+        expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.id).to.equal('5');
         expect(request.body).to.eql({name: 'fred'});
@@ -180,7 +180,7 @@ describe('serene-express', function () {
       service.use(function (request, response) {
         called = true;
         expect(request.operation).to.equal('delete');
-        expect(request.resource).to.equal('widgets');
+        expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.id).to.equal('5');
         response.result = {value: 'test'};
