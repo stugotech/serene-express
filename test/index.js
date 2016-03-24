@@ -2,7 +2,7 @@
 var expect = require('chai').expect;
 var express = require('express');
 var Serene = require('serene');
-var sereneExpress = require('../index');
+var SereneExpress = require('../index');
 var supertest = require('supertest-as-promised');
 
 
@@ -13,7 +13,7 @@ describe('serene-express', function () {
   beforeEach(function () {
     app = express();
     service = new Serene();
-    app.use(sereneExpress(service));
+    app.use(new SereneExpress(service));
 
     if (!process.env.STACK) {
       app.use(function (err, request, response, next) {
@@ -29,11 +29,10 @@ describe('serene-express', function () {
 
       service.use(function (request, response) {
         called = true;
-        expect(request.operation).to.equal('list');
+        expect(request.operation.name).to.equal('list');
         expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         response.result = {value: 'test'};
-        return response;
       });
 
       return supertest(app)
@@ -44,6 +43,30 @@ describe('serene-express', function () {
           expect(response.body.value).to.equal('test');
         });
     });
+
+
+    it('should set the headers correctly', function () {
+      service.use(function (request, response) {
+        expect(request.headers.authorization).to.equal('Bearer frobble');
+      });
+
+      return supertest(app)
+        .get('/widgets')
+        .set('Authorization', 'Bearer frobble')
+        .expect(204);
+    });
+
+
+    it('should set the cookies correctly', function () {
+      service.use(function (request, response) {
+        expect(request.cookies.auth).to.equal('frobble');
+      });
+
+      return supertest(app)
+        .get('/widgets')
+        .set('Cookie', 'auth=frobble')
+        .expect(204);
+    });
   });
 
 
@@ -53,12 +76,11 @@ describe('serene-express', function () {
 
       service.use(function (request, response) {
         called = true;
-        expect(request.operation).to.equal('get');
+        expect(request.operation.name).to.equal('get');
         expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.id).to.equal('5');
         response.result = {value: 'test'};
-        return response;
       });
 
       return supertest(app)
@@ -78,12 +100,11 @@ describe('serene-express', function () {
 
       service.use(function (request, response) {
         called = true;
-        expect(request.operation).to.equal('create');
+        expect(request.operation.name).to.equal('create');
         expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.body).to.eql({name: 'fred'});
         response.result = {value: 'test'};
-        return response;
       });
 
       return supertest(app)
@@ -111,13 +132,12 @@ describe('serene-express', function () {
 
       service.use(function (request, response) {
         called = true;
-        expect(request.operation).to.equal('update');
+        expect(request.operation.name).to.equal('update');
         expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.id).to.equal('5');
         expect(request.body).to.eql({name: 'fred'});
         response.result = {value: 'test'};
-        return response;
       });
 
       return supertest(app)
@@ -145,13 +165,12 @@ describe('serene-express', function () {
 
       service.use(function (request, response) {
         called = true;
-        expect(request.operation).to.equal('replace');
+        expect(request.operation.name).to.equal('replace');
         expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.id).to.equal('5');
         expect(request.body).to.eql({name: 'fred'});
         response.result = {value: 'test'};
-        return response;
       });
 
       return supertest(app)
@@ -179,12 +198,11 @@ describe('serene-express', function () {
 
       service.use(function (request, response) {
         called = true;
-        expect(request.operation).to.equal('delete');
+        expect(request.operation.name).to.equal('delete');
         expect(request.resourceName).to.equal('widgets');
         expect(request.query).to.eql({fields: 'foo'});
         expect(request.id).to.equal('5');
         response.result = {value: 'test'};
-        return response;
       });
 
       return supertest(app)

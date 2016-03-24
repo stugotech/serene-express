@@ -1,14 +1,16 @@
 
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 var express = require('express');
 
 
-module.exports = sereneExpress;
+module.exports = SereneExpress;
 
 
-function sereneExpress(service) {
+function SereneExpress(service) {
   var api = express.Router();
   api.use(bodyParser.json());
+  api.use(cookieParser());
 
   api.get('/:resource', makeHandler(service, 'list'));
   api.get('/:resource/:id', makeHandler(service, 'get'));
@@ -40,7 +42,9 @@ function makeHandler(service, operation) {
         request.params.resource,
         request.query,
         request.body,
-        request.params.id
+        request.params.id,
+        request.headers,
+        request.cookies
       )
       .then(
         function (sereneResponse) {
