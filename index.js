@@ -2,7 +2,9 @@
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var express = require('express');
+var debug = require('debug');
 
+var traceRequest = debug('serene-express:request');
 
 module.exports = SereneExpress;
 
@@ -20,6 +22,8 @@ function SereneExpress(service) {
   api.delete('/:resource/:id', makeHandler(service, 'delete'));
 
   api.use(function (error, request, response, next) {
+    traceRequest(`error: ${error.name}`);
+
     // make name and message enumerable
     Object.defineProperty(error, 'name', {enumerable: true, value: error.name})
     Object.defineProperty(error, 'message', {enumerable: true, value: error.message})
@@ -37,6 +41,8 @@ function SereneExpress(service) {
 
 function makeHandler(service, operation) {
   return function (request, response, next) {
+    traceRequest(`handling ${operation}:${request.params.resource}`);
+
     service.dispatch(
         operation,
         request.params.resource,
@@ -50,6 +56,7 @@ function makeHandler(service, operation) {
         function (sereneResponse) {
           if (sereneResponse.headers) {
             for (var k in sereneResponse.headers) {
+              traceRequest(`setting header ${k}=${sereneResponse.headers[k]}`);
               response.set(k, sereneResponse.headers[k]);
             }
           }
@@ -63,8 +70,8 @@ function makeHandler(service, operation) {
               .status(sereneResponse.status || 204)
               .send();
           }
-        },
-        next
-      );
+        }
+      )
+      .catch(next);
   };
 }
