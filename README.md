@@ -35,3 +35,11 @@ This package maps the following routes to the specified Serene operations:
 | `DELETE /:resource/:id` | `delete` |
 
 It also defines an error handler that serialises the error to JSON in the `error` field of the response, using the status code specified by the `status` field on the error if it exists, or 500 by default.
+
+If you pass `false` as a second argument to `sereneExpress`, it will not register the error handler nor the handler that formats the response to JSON.  These handlers can be referenced manually like so:
+
+```js
+import {errorHandler, formatJson} from 'serene-express';
+```
+
+This could be useful for setting it up to serialise to a different format, such as XML or CSV.

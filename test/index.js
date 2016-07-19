@@ -8,12 +8,13 @@ var supertest = require('supertest-as-promised');
 
 describe('serene-express', function () {
   var app;
-  var service;
+  var service, sereneExpress;
 
   beforeEach(function () {
     app = express();
     service = new Serene();
-    app.use(new SereneExpress(service));
+    sereneExpress = new SereneExpress(service);
+    app.use(sereneExpress);
 
     if (!process.env.STACK) {
       app.use(function (err, request, response, next) {
@@ -66,6 +67,36 @@ describe('serene-express', function () {
         .get('/widgets')
         .set('Cookie', 'auth=frobble')
         .expect(204);
+    });
+
+    it('should set response.serene', function () {
+      app = express();
+      service = new Serene();
+      sereneExpress = new SereneExpress(service, false);
+      app.use(sereneExpress);
+
+      var handlerCalled = false;
+      var afterCalled = false;
+
+      service.use(function (request, response) {
+        expect(afterCalled).to.be.false;
+        handlerCalled = true;
+      });
+
+      app.use(function (request, response, next) {
+        expect(response.serene).to.exist;
+        expect(handlerCalled).to.be.true;
+        afterCalled = true;
+        response.send();
+      });
+
+      return supertest(app)
+        .get('/widgets')
+        .expect(204)
+        .then(function () {
+          expect(handlerCalled).to.be.true;
+          expect(afterCalled).to.be.true;
+        });
     });
   });
 

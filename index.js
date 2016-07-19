@@ -7,9 +7,10 @@ var debug = require('debug');
 var traceRequest = debug('serene-express:request');
 
 module.exports = SereneExpress;
+module.exports.formatJson = formatJson;
+module.exports.errorHandler = errorHandler;
 
-
-function SereneExpress(service) {
+function SereneExpress(service, auto) {
   var api = express.Router();
   api.use(bodyParser.json());
   api.use(cookieParser());
@@ -21,21 +22,41 @@ function SereneExpress(service) {
   api.put('/:resource/:id', makeHandler(service, 'replace'));
   api.delete('/:resource/:id', makeHandler(service, 'delete'));
 
-  api.use(function (error, request, response, next) {
-    traceRequest(`error: ${error.name}`);
-
-    // make name and message enumerable
-    Object.defineProperty(error, 'name', {enumerable: true, value: error.name})
-    Object.defineProperty(error, 'message', {enumerable: true, value: error.message})
-
-    response
-      .status(error.status || 500)
-      .json({error: error});
-
-    next(error);
-  });
+  if (auto === true || typeof auto === 'undefined') {
+    api.use(formatJson);
+    api.use(errorHandler);
+  }
 
   return api;
+}
+
+
+function formatJson(request, response) {
+  var sereneResponse = response.serene;
+
+  if (sereneResponse.result) {
+    response
+      .json(sereneResponse.result);
+
+  } else {
+    response
+      .send();
+  }
+}
+
+
+function errorHandler(error, request, response, next) {
+  traceRequest(`error: ${error.name}`);
+
+  // make name and message enumerable
+  Object.defineProperty(error, 'name', {enumerable: true, value: error.name})
+  Object.defineProperty(error, 'message', {enumerable: true, value: error.message})
+
+  response
+    .status(error.status || 500)
+    .json({error: error});
+
+  next(error);
 }
 
 
@@ -63,13 +84,15 @@ function makeHandler(service, operation) {
 
           if (sereneResponse.result) {
             response
-              .status(sereneResponse.status || (operation === 'create' ? 201 : 200))
-              .json(sereneResponse.result);
+              .status(sereneResponse.status || (operation === 'create' ? 201 : 200));
+
           } else {
             response
-              .status(sereneResponse.status || 204)
-              .send();
+              .status(sereneResponse.status || 204);
           }
+
+          response.serene = sereneResponse;
+          next();
         }
       )
       .catch(next);
