@@ -64,15 +64,21 @@ function makeHandler(service, operation) {
   return function (request, response, next) {
     traceRequest(`handling ${operation}:${request.params.resource}`);
 
-    service.dispatch(
-        operation,
-        request.params.resource,
-        request.query,
-        request.body,
-        request.params.id,
-        request.headers,
-        request.cookies
-      )
+    var sereneRequest = service.request(
+      operation,
+      request.params.resource,
+      request.query,
+      request.body,
+      request.params.id,
+      request.headers,
+      request.cookies
+    );
+
+    request.serene = sereneRequest;
+    sereneRequest.underlyingRequest = request;
+    sereneRequest.baseUrl = request.protocol + '://' + request.get('host') + request.baseUrl;
+
+    sereneRequest.dispatch()
       .then(
         function (sereneResponse) {
           if (sereneResponse.headers) {
