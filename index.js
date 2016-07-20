@@ -71,12 +71,12 @@ function makeHandler(service, operation) {
       request.body,
       request.params.id,
       request.headers,
-      request.cookies
+      request.cookies,
+      request.protocol + '://' + request.get('host') + request.baseUrl
     );
 
     request.serene = sereneRequest;
     sereneRequest.underlyingRequest = request;
-    sereneRequest.baseUrl = request.protocol + '://' + request.get('host') + request.baseUrl;
 
     sereneRequest.dispatch()
       .then(
