@@ -1,6 +1,6 @@
 {
   "name": "serene-express",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Allows you to use Serene with Express",
   "main": "index.js",
   "directories": {

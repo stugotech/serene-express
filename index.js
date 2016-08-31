@@ -77,6 +77,7 @@ function makeHandler(service, operation) {
 
     request.serene = sereneRequest;
     sereneRequest.underlyingRequest = request;
+    sereneRequest.underlyingResponse = response;
 
     sereneRequest.dispatch()
       .then(
@@ -88,13 +89,15 @@ function makeHandler(service, operation) {
             }
           }
 
-          if (sereneResponse.result) {
-            response
-              .status(sereneResponse.status || (operation === 'create' ? 201 : 200));
+          if (!response.headersSent) {
+            if (sereneResponse.result) {
+              response
+                .status(sereneResponse.status || (operation === 'create' ? 201 : 200));
 
-          } else {
-            response
-              .status(sereneResponse.status || 204);
+            } else {
+              response
+                .status(sereneResponse.status || 204);
+            }
           }
 
           response.serene = sereneResponse;

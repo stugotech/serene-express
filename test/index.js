@@ -98,6 +98,18 @@ describe('serene-express', function () {
           expect(afterCalled).to.be.true;
         });
     });
+
+
+    it('should allow the handler to fiddle with the underlying request', function () {
+      service.use(function (request, response) {
+        request.underlyingResponse.send('hi!');
+      });
+
+      return supertest(app)
+        .get('/widgets')
+        .set('Cookie', 'auth=frobble')
+        .expect(200, 'hi!');
+    });
   });
 
 
